@@ -1,20 +1,24 @@
 import discord
 import os
+from dotenv import load_dotenv
 
-intents = discord.Intents(messages=True)
+load_dotenv()
 
-client = discord.Client(intents=intents)
+class MyClient(discord.Client):
+    async def on_ready(self):
+        print('***')
+        print(f'Logged in as {self.user}')
+        print('***')
 
-@client.event
-async def on_ready():
-    print(f'We have logged in as {client.user}')
+    async def on_message(self, message):
+        if message.author.id == self.user.id:
+            return
 
-@client.event
-async def on_message(message):
-    if message.author == client.user:
-        return
-    
-    if message.content.startswith('.hello'):
-        await message.channel.send('Hello!', mention_author=True)
+        if message.content.startswith('.hello'):
+            await message.reply('Hello!', mention_author=True)
 
+intents = discord.Intents.default()
+intents.messages = True
+
+client = MyClient(intents=intents)
 client.run(os.getenv('TOKEN'))
